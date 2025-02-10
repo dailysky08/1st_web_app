@@ -63,6 +63,58 @@ def get_profiles():
     return profiles
 
 
+# ===== 위키 페이지 관련 DB 함수 =====
+def create_pages_table():
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS pages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT UNIQUE,
+            content TEXT,
+            author TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def add_page(title, content, author):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO pages (title, content, author) VALUES (?, ?, ?)", (title, content, author))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        st.error("해당 제목의 페이지가 이미 존재합니다. 다른 제목을 사용하거나 기존 페이지를 편집하세요.")
+    conn.close()
+
+def update_page(title, content, author):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP, author = ? WHERE title = ?",
+              (content, author, title))
+    conn.commit()
+    conn.close()
+
+def get_all_pages():
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("SELECT title, author, updated_at FROM pages ORDER BY updated_at DESC")
+    pages = c.fetchall()
+    conn.close()
+    return pages
+
+def get_page_by_title(title):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("SELECT title, content, author, created_at, updated_at FROM pages WHERE title = ?", (title,))
+    page = c.fetchone()
+    conn.close()
+    return page
+
+
 # ===== 메인 함수 =====
 def main():
     st.set_page_config(page_title="Wiki 시스템", layout="wide")
@@ -71,6 +123,7 @@ def main():
     # DB 테이블 생성
     create_user_table()
     create_profile_table()
+    create_pages_table()
 
     # 세션 상태 초기화
     if "logged_in" not in st.session_state:
@@ -110,9 +163,8 @@ def main():
                     st.success("계정이 생성되었습니다! 로그인해주세요.")
         elif page_selection == "Skeleton 회원":
             st.subheader("Skeleton 회원 프로필")
-            
             if st.session_state.get("logged_in", False):
-                description = st.text_area("자기소개", value="")
+                description = st.text_area("자기소개")
                 if st.button("프로필 업데이트"):
                     update_profile(st.session_state.username, description)
                     st.success("프로필이 업데이트되었습니다.")
@@ -120,8 +172,6 @@ def main():
             st.header("회원 프로필")
             profiles = get_profiles()
             for username, description in profiles:
-                if username == st.session_state.username:
-                    continue  # 자기 자신 프로필은 제외
                 with st.expander(username):
                     st.write(description)
 
@@ -130,7 +180,7 @@ def main():
         st.subheader("자유문서 아카이브")
         if st.session_state.logged_in:
             action = st.radio("문서 관리", ["문서 읽기", "문서 수정", "문서 삭제", "문서 생성"])
-
+            
             if action == "문서 생성":
                 st.subheader("새로운 문서 생성")
                 new_title = st.text_input("페이지 제목")
@@ -198,3 +248,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
