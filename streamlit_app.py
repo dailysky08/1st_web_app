@@ -2,7 +2,6 @@ import streamlit as st
 import hashlib
 import sqlite3
 
-
 # ===== 사용자 관련 DB 함수 =====
 def create_user_table():
     conn = sqlite3.connect("users.db")
@@ -131,7 +130,7 @@ def main():
         st.session_state.username = ""
 
     # ===== 사이드바 라디오 버튼 =====
-    page_selection = st.sidebar.radio("페이지 선택", ["홈", "자유문서 아카이브", "Skeleton Members"], index=0)
+    page_selection = st.sidebar.radio("페이지 선택", ["홈", "자유문서 아카이브", "Skeleton 회원"], index=0)
 
     # ===== 로그인/로그아웃 처리 =====
     if st.session_state.logged_in:
@@ -169,7 +168,7 @@ def main():
                     update_profile(st.session_state.username, description)
                     st.success("프로필이 업데이트되었습니다.")
             
-            st.header("Members' 프로필")
+            st.header("회원 프로필")
             profiles = get_profiles()
             for username, description in profiles:
                 with st.expander(username):
