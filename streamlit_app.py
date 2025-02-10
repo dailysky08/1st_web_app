@@ -81,7 +81,7 @@ def main():
                         st.session_state.logged_in = True
                         st.session_state.username = username
                         st.success("Login Successful")
-                        st.experimental_rerun()
+                        st.stop()
                     else:
                         st.error("Invalid Username or Password")
             elif menu == "Sign Up":
@@ -90,13 +90,13 @@ def main():
                 if st.button("Sign Up"):
                     add_user(new_user, new_password)
                     st.success("Account created! Please login.")
-                    st.experimental_rerun()
+                    st.stop()
         else:
             st.success(f"Logged in as {st.session_state.username}")
             if st.button("Logout"):
                 st.session_state.logged_in = False
                 st.session_state.username = ""
-                st.experimental_rerun()
+                st.stop()
     
     with st.sidebar:
         st.header("Skeleton Members")
@@ -105,7 +105,7 @@ def main():
             if st.button("Update Profile"):
                 update_profile(st.session_state.username, description)
                 st.success("Profile Updated")
-                st.experimental_rerun()
+                st.stop()
     
     st.header("Members' Profiles")
     profiles = get_profiles()
