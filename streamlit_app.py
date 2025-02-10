@@ -116,8 +116,8 @@ def get_page_by_title(title):
 
 # ===== 메인 함수 =====
 def main():
-    st.set_page_config(page_title="Wiki 시스템", layout="wide")
-    st.title("Wiki 시스템")
+    st.set_page_config(page_title="SKELETON WIKI", layout="wide")
+    st.title("SKELETON WIKI")
 
     # DB 테이블 생성
     create_user_table()
