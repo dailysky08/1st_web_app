@@ -64,7 +64,9 @@ def main():
     create_user_table()
     create_profile_table()
     
-    with st.sidebar:
+    page = st.sidebar.selectbox("Navigation", ["Login / Sign Up", "Skeleton Members"])
+    
+    if page == "Login / Sign Up":
         st.header("User Authentication")
         if "logged_in" not in st.session_state:
             st.session_state.logged_in = False
@@ -98,20 +100,20 @@ def main():
                 st.session_state.username = ""
                 st.stop()
     
-    with st.sidebar:
+    elif page == "Skeleton Members":
         st.header("Skeleton Members")
-        if st.session_state.logged_in:
+        if st.session_state.get("logged_in", False):
             description = st.text_area("Describe Yourself")
             if st.button("Update Profile"):
                 update_profile(st.session_state.username, description)
                 st.success("Profile Updated")
                 st.stop()
-    
-    st.header("Members' Profiles")
-    profiles = get_profiles()
-    for username, description in profiles:
-        with st.expander(username):
-            st.write(description)
+        
+        st.header("Members' Profiles")
+        profiles = get_profiles()
+        for username, description in profiles:
+            with st.expander(username):
+                st.write(description)
 
 if __name__ == "__main__":
     main()
